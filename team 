@@ -1,0 +1,67 @@
+import serial
+import numpy as np
+import matplotlib.pyplot as plt
+
+port = serial.Serial('COM3', 115200)
+print("Receiving")
+comp_data = ""
+data_items = []
+temp = []
+time = []
+time2 = []
+eCO2Values = []
+count = 0
+
+while True:
+    message = port.readline().decode().strip()
+    print(message)
+    if count >= 21 or message == "END":
+        break
+    comp_data = message.split(',')
+    data_items.append(comp_data)
+    print(data_items)
+    count += 1
+for i in range(8, len(data_items), 1):
+    time.append(float(data_items[i][0]))
+    temp.append(float(data_items[i][1]))
+
+user_input = input("are you ready to receive new data Y/N")
+receiving = True
+if(user_input.upper() == "Y"):
+    count = 0
+    data_items2 = []
+    message = ""
+    while receiving == True:
+        message = port.readline().decode().strip()
+
+        print(message)
+        if count > 17:
+            break
+        comp_data = message.split(',')
+        data_items2.append(comp_data)
+        print(data_item2)
+        count += 1
+    for i in range(4, len(data_items2), 1):
+        time2.append(float(data_items2[i][0]))
+        eCO2Values.append(float(data_items2[i][1]))
+
+print(time)
+print(temp)
+xaxis1 = np.array(time)
+yaxis1 = np.array(temp)
+print(xaxis1)
+print(yaxis1)
+plt.plot(xaxis1, yaxis1)
+plt.xlabel("Time (seconds)")
+plt.ylabel("temperature (C)")
+plt.title("Temperature over time")
+plt.ticklabel_format(style='plain', axis='y')
+plt.show()
+xaxis2 = np.array(time2)
+yaxis2 = np.array(eCO2Values)
+plt.plot(xaxis2, yaxis2)
+plt.title("eCO2 over time")
+plt.xlabel("Time (seconds)")
+plt.ylabel("eCO2Value (PPM)")
+plt.tight_layout()
+plt.show()
