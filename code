@@ -1,0 +1,42 @@
+from microbit import *
+import time
+# 如果你有 bme688 模块，可以取消下面的注释并使用真传感器
+# from bme688 import *
+# init_sensor()
+# init_gas_sensor()
+
+uart.init(baudrate=115200)
+
+loop = False
+numOfReadings = 0
+
+display.scroll("Ready")
+
+while not loop:
+    if button_b.is_pressed():
+        loop = True
+        display.scroll("Start")
+
+while loop:
+    # 模拟 eCO₂ 数据，如果你有传感器请替换为真实读取值
+    # read_data_registers()
+    # iaqScore, iaqPercent, eC02Value = calc_air_quality()
+    eC02Value = 500 + numOfReadings * 15  # 假数据，逐渐上升
+
+    elapsed_time = numOfReadings * 5
+    data = str(elapsed_time) + "," + str(eC02Value)
+
+    # 串口输出 & 显示
+    uart.write(data + "\n")
+    print(data)
+    display.scroll("CO2:" + str(eC02Value))
+
+    numOfReadings += 1
+
+    timeBefore = time.ticks_ms()
+    while time.ticks_diff(time.ticks_ms(), timeBefore) < 5000:
+        if button_a.is_pressed() or numOfReadings >= 18:
+            uart.write("END\n")
+            display.scroll("END")
+            loop = False
+            break
